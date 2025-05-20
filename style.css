@@ -1,1 +1,44 @@
-body { font-family: Arial; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  padding: 0;
+  background: #fafafa;
+  color: #333;
+  text-align: center;
+}
+
+h1 {
+  color: #800000;
+}
+
+#slider {
+  width: 80%;
+  margin: 20px 0;
+}
+
+#submitBtn, #setQuestionBtn {
+  padding: 10px 20px;
+  background: #800000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#submitBtn:hover, #setQuestionBtn:hover {
+  background: #a00000;
+}
+
+#stats {
+  margin-top: 30px;
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 16px;
+  }
+
+  #slider {
+    width: 95%;
+  }
+}
