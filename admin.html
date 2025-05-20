@@ -1,16 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - Wein Tester</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="admin.js" defer></script>
-  <link rel="stylesheet" href="style.css" />
+  <script defer src="admin.js"></script>
 </head>
 <body>
   <h1>Admin Panel</h1>
-  <div id="admin-dashboard">Lade Daten...</div>
+  <div id="controls">
+    <button onclick="prevQuestion()">⬅️ Zurück</button>
+    <button onclick="nextQuestion()">➡️ Weiter</button>
+    <button onclick="resetVotes()">🧹 Zurücksetzen</button>
+  </div>
+  <div id="admin-output">
+    <canvas id="resultChart" width="400" height="200"></canvas>
+  </div>
 </body>
 </html>
