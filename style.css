@@ -1,80 +1,10 @@
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: sans-serif;
+  padding: 1em;
   margin: 0;
-  padding: 0;
-  background: #f0f2f5;
-  color: #333;
-  text-align: center;
+  background: #f2f2f2;
 }
-
-#app {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: 40px;
-}
-
 h1 {
-  color: #8b0000;
-  font-size: 2em;
-}
-
-input[type="range"] {
-  width: 100%;
-  margin: 20px 0;
-}
-
-#slider-value {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-button {
-  padding: 10px 20px;
-  margin: 10px 5px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: #8b0000;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #a40000;
-}
-
-.nav-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-input[type="text"] {
-  padding: 10px;
-  font-size: 1em;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-  width: 60%;
-}
-
-@media (max-width: 600px) {
-  #app {
-    margin-top: 20px;
-    padding: 10px;
-  }
-
-  button {
-    width: 100%;
-    margin: 5px 0;
-  }
-
-  input[type="text"] {
-    width: 100%;
-  }
+  text-align: center;
 }
