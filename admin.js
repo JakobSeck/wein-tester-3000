@@ -1,11 +1,12 @@
 // Firebase config (deine echten Werte hier einfügen)
 const firebaseConfig = {
-  apiKey: "DEIN_API_KEY",
-  authDomain: "DEIN_AUTH_DOMAIN",
-  projectId: "DEIN_PROJECT_ID",
-  storageBucket: "DEIN_STORAGE_BUCKET",
-  messagingSenderId: "DEIN_SENDER_ID",
-  appId: "DEINE_APP_ID"
+  apiKey: "AIzaSyASD7sd9H8zC4eWQG4hXhu7OlKZlZbgxTo",
+  authDomain: "weintester-6e16b.firebaseapp.com",
+  projectId: "weintester-6e16b",
+  storageBucket: "weintester-6e16b.appspot.com",
+  messagingSenderId: "246274264172",
+  appId: "1:246274264172:web:c417c43f66d81d68fc1c49",
+  measurementId: "G-6DG76XNGG8"
 };
 
 firebase.initializeApp(firebaseConfig);
