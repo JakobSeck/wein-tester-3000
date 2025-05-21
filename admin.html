@@ -3,82 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weinbeurteilung: Neues Deutsches Weingesetz – Admin</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <title>Admin – Weinbeurteilung</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="admin.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 1rem;
-      margin: 0;
-      background: #f9f9f9;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .chart-container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-
-    .avg-display {
-      font-size: 1.5rem;
-      text-align: center;
-      margin: 1rem 0;
-      font-weight: bold;
+      background-color: #fdfdfd;
       color: #333;
     }
-
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
     #weinName {
       font-size: 1.2rem;
-      text-align: center;
-      margin: 0.5rem 0 1rem;
-      font-weight: 600;
+      margin-bottom: 0.5rem;
     }
-
-    #nextButton, #resetButton {
-      margin: 1rem auto;
-      display: block;
+    #avgWert {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem 0;
+    }
+    #distributionChart {
+      max-width: 100%;
+      height: 350px;
+    }
+    button {
+      margin: 1rem 1rem 1rem 0;
       padding: 0.6rem 1rem;
       font-size: 1rem;
       border: none;
-      border-radius: 8px;
-      background: #6200ee;
+      background-color: #8b0000;
       color: white;
+      border-radius: 6px;
       cursor: pointer;
     }
-
-    #resetButton {
-      background: #c62828;
-      margin-top: 0.5rem;
-    }
-
-    canvas {
-      max-width: 100%;
-      height: auto;
+    button:hover {
+      background-color: #a30000;
     }
   </style>
 </head>
 <body>
-
-  <h1>Adminbereich</h1>
-  <div class="chart-container">
-    <div id="weinName">Wein Nr. 1</div>
-    <canvas id="distributionChart" width="600" height="300"></canvas>
-    <div class="avg-display" id="avgWert">Durchschnitt: 0.0</div>
+  <h1>Adminbereich – Weinbeurteilung</h1>
+  <div id="weinName">Wein Nr. ...</div>
+  <div id="avgWert">Durchschnitt: ...</div>
+  <canvas id="distributionChart"></canvas>
+  <div>
     <button id="nextButton">Nächste Frage freigeben</button>
     <button id="resetButton">Alle Antworten zurücksetzen</button>
   </div>
-
-  <script src="admin.js"></script>
 </body>
 </html>
