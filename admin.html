@@ -2,173 +2,83 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Weinbeurteilung : Neues Deutsches Weingesetz – Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weinbeurteilung: Neues Deutsches Weingesetz – Admin</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: sans-serif;
-      padding: 2rem;
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      margin: 0;
       background: #f9f9f9;
-      text-align: center;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 1.6rem;
+      text-align: center;
       margin-bottom: 1rem;
     }
 
-    .chart-section {
-      margin-top: 2rem;
-    }
-
-    #barChart {
-      max-width: 450px;
-      height: 220px;
+    .chart-container {
+      max-width: 700px;
       margin: 0 auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
 
-    #average-score {
-      font-size: 2.5rem;
+    .avg-display {
+      font-size: 1.5rem;
+      text-align: center;
+      margin: 1rem 0;
       font-weight: bold;
       color: #333;
     }
 
-    .nav-buttons {
-      margin-top: 2rem;
+    #weinName {
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 0.5rem 0 1rem;
+      font-weight: 600;
     }
 
-    button {
+    #nextButton, #resetButton {
+      margin: 1rem auto;
+      display: block;
+      padding: 0.6rem 1rem;
       font-size: 1rem;
-      margin: 0.5rem;
-      padding: 0.6rem 1.2rem;
       border: none;
-      background-color: #3366cc;
-      color: white;
       border-radius: 8px;
+      background: #6200ee;
+      color: white;
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #254f9d;
+    #resetButton {
+      background: #c62828;
+      margin-top: 0.5rem;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
     }
   </style>
 </head>
 <body>
-  <h1>Admin-Panel – Weinbeurteilung : Neues Deutsches Weingesetz</h1>
 
-  <h2 id="wein-title">Wein Nr. <span id="wein-number">1</span></h2>
-
-  <div class="chart-section">
-    <div>Durchschnitt:</div>
-    <div id="average-score">–</div>
-    <canvas id="barChart"></canvas>
+  <h1>Adminbereich</h1>
+  <div class="chart-container">
+    <div id="weinName">Wein Nr. 1</div>
+    <canvas id="distributionChart" width="600" height="300"></canvas>
+    <div class="avg-display" id="avgWert">Durchschnitt: 0.0</div>
+    <button id="nextButton">Nächste Frage freigeben</button>
+    <button id="resetButton">Alle Antworten zurücksetzen</button>
   </div>
 
-  <div class="nav-buttons">
-    <button onclick="prevQuestion()">⬅️ Zurück</button>
-    <button onclick="nextQuestion()">Weiter ➡️</button>
-    <button onclick="resetVotes()">Antworten zurücksetzen</button>
-  </div>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyASD7sd9H8zC4eWQG4hXhu7OlKZlZbgxTo",
-      authDomain: "weintester-6e16b.firebaseapp.com",
-      projectId: "weintester-6e16b",
-      storageBucket: "weintester-6e16b.appspot.com",
-      messagingSenderId: "246274264172",
-      appId: "1:246274264172:web:c417c43f66d81d68fc1c49",
-      measurementId: "G-6DG76XNGG8"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const NUM_QUESTIONS = 12;
-    let currentQuestion = 0;
-    let chart;
-
-    function updateTitle() {
-      document.getElementById("wein-number").textContent = currentQuestion + 1;
-    }
-
-    function updateChart() {
-      updateTitle();
-      db.collection("responses")
-        .where("questionIndex", "==", currentQuestion)
-        .get()
-        .then(snapshot => {
-          const votes = Array(51).fill(0); // 0.0 to 5.0 in 0.1 steps
-          snapshot.forEach(doc => {
-            const val = doc.data().value;
-            const index = Math.round(val * 10);
-            votes[index]++;
-          });
-
-          const labels = Array.from({length: 51}, (_, i) => (i / 10).toFixed(1));
-          const data = {
-            labels,
-            datasets: [{
-              label: `Bewertungen für Wein Nr. ${currentQuestion + 1}`,
-              data: votes,
-              backgroundColor: "#3366cc"
-            }]
-          };
-
-          const totalVotes = votes.reduce((sum, v) => sum + v, 0);
-          const totalScore = votes.reduce((sum, v, i) => sum + v * (i / 10), 0);
-          const average = totalVotes ? (totalScore / totalVotes).toFixed(2) : "–";
-          document.getElementById("average-score").textContent = average;
-
-          if (chart) chart.destroy();
-          const ctx = document.getElementById("barChart").getContext("2d");
-          chart = new Chart(ctx, {
-            type: "bar",
-            data,
-            options: {
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: { stepSize: 1 }
-                }
-              }
-            }
-          });
-        });
-    }
-
-    function nextQuestion() {
-      if (currentQuestion < NUM_QUESTIONS - 1) {
-        currentQuestion++;
-        updateChart();
-      }
-    }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) {
-        currentQuestion--;
-        updateChart();
-      }
-    }
-
-    function resetVotes() {
-      if (!confirm("Willst du wirklich ALLE Antworten löschen?")) return;
-      db.collection("responses").get().then(snapshot => {
-        const batch = db.batch();
-        snapshot.forEach(doc => batch.delete(doc.ref));
-        return batch.commit();
-      }).then(() => {
-        alert("Antworten gelöscht!");
-        updateChart();
-      });
-    }
-
-    updateChart();
-  </script>
+  <script src="admin.js"></script>
 </body>
 </html>
