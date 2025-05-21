@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin – Weinbeurteilung</title>
+  <title>Admin – Weinbeurteilung : Neues Deutsches Weingesetz</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,29 +17,29 @@
       color: #333;
     }
     h1 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
     }
     #weinName {
       font-size: 1.2rem;
-      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
     }
     #avgWert {
       font-size: 2rem;
       font-weight: bold;
       margin: 1rem 0;
     }
-    #distributionChart {
+    canvas {
       max-width: 100%;
-      height: 350px;
+      height: 300px;
     }
     button {
-      margin: 1rem 1rem 1rem 0;
+      margin: 1rem 1rem 0 0;
       padding: 0.6rem 1rem;
       font-size: 1rem;
-      border: none;
       background-color: #8b0000;
       color: white;
+      border: none;
       border-radius: 6px;
       cursor: pointer;
     }
@@ -49,7 +49,7 @@
   </style>
 </head>
 <body>
-  <h1>Adminbereich – Weinbeurteilung</h1>
+  <h1>Admin – Weinbeurteilung : Neues Deutsches Weingesetz</h1>
   <div id="weinName">Wein Nr. ...</div>
   <div id="avgWert">Durchschnitt: ...</div>
   <canvas id="distributionChart"></canvas>
@@ -59,3 +59,4 @@
   </div>
 </body>
 </html>
+
