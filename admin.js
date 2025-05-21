@@ -1,105 +1,84 @@
-// Firebase config – DEINE Daten hier einsetzen
-const firebaseConfig = {
-  apiKey: "AIzaSyASD7sd9H8zC4eWQG4hXhu7OlKZlZbgxTo",
-  authDomain: "weintester-6e16b.firebaseapp.com",
-  projectId: "weintester-6e16b",
-  storageBucket: "weintester-6e16b.appspot.com",
-  messagingSenderId: "246274264172",
-  appId: "1:246274264172:web:c417c43f66d81d68fc1c49",
-  measurementId: "G-6DG76XNGG8"
-};
-
-firebase.initializeApp(firebaseConfig);
-const firestore = firebase.firestore();
-
-const chartCanvas = document.getElementById("distributionChart");
-const avgWert = document.getElementById("avgWert");
-const weinName = document.getElementById("weinName");
-const nextButton = document.getElementById("nextButton");
-const resetButton = document.getElementById("resetButton");
-
-let chart;
+const db = firebase.firestore();
 let aktuelleFrage = 1;
 
-const frageNamen = Array.from({ length: 12 }, (_, i) => `Wein Nr. ${i + 1}`);
-
-function ladeFrage(frageNummer) {
-  const frage = `frage_${frageNummer}`;
-  weinName.innerText = `Weinbeurteilung: ${frageNamen[frageNummer - 1]}`;
-
-  firestore.collection("antworten").where("frage", "==", frage).get().then(snapshot => {
-    const werte = snapshot.docs.map(doc => doc.data().wert).filter(w => typeof w === 'number');
-    const verteilung = Array(51).fill(0);
-
-    werte.forEach(wert => {
-      const index = Math.round(wert * 10); // 0.1-Schritte
-      if (index >= 0 && index <= 50) verteilung[index]++;
-    });
-
-    const labels = Array.from({ length: 51 }, (_, i) => (i / 10).toFixed(1));
-    const data = {
-      labels: labels,
-      datasets: [{
-        label: "Stimmen",
-        data: verteilung,
-        backgroundColor: "#42a5f5"
-      }]
-    };
-
-    const avg = werte.length > 0 ? (werte.reduce((a, b) => a + b) / werte.length).toFixed(2) : "0.00";
-    avgWert.innerText = `Durchschnitt: ${avg}`;
-
-    if (chart) chart.destroy();
-    chart = new Chart(chartCanvas, {
-      type: "bar",
-      data: data,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }).catch(err => {
-    console.error("Fehler beim Laden der Frage:", err);
-    avgWert.innerText = "Fehler beim Laden der Daten";
+function ladeFrage() {
+  db.collection("umfragen").doc("aktuell").get().then(doc => {
+    if (doc.exists) {
+      aktuelleFrage = doc.data().aktuelleFrage || 1;
+      document.getElementById("weinName").innerText = "Wein Nr. " + aktuelleFrage;
+      ladeAntworten();
+    }
   });
 }
 
-// Initial: aktuelle Frage auslesen
-firestore.collection("umfragen").doc("aktuell").onSnapshot(doc => {
-  if (doc.exists) {
-    aktuelleFrage = doc.data().aktuelleFrage || 1;
-    ladeFrage(aktuelleFrage);
-  } else {
-    console.error("Dokument 'aktuell' existiert nicht.");
-    avgWert.innerText = "Konfigurationsfehler!";
-  }
-});
+function ladeAntworten() {
+  const frage = "frage_" + aktuelleFrage;
+  db.collection("antworten").where("frage", "==", frage).get().then(snapshot => {
+    let daten = [];
+    snapshot.forEach(doc => {
+      daten.push(doc.data().wert);
+    });
 
-// Nächste Frage freigeben
-nextButton.addEventListener("click", () => {
-  firestore.collection("umfragen").doc("aktuell").update({
-    aktuelleFrage: firebase.firestore.FieldValue.increment(1)
-  }).then(() => {
-    console.log("Nächste Frage freigegeben");
-  }).catch(err => {
-    console.error("Fehler beim Freigeben:", err);
-    alert("Fehler beim Freigeben. Rechte? Dokument 'aktuell' da?");
+    if (daten.length === 0) {
+      document.getElementById("avgWert").innerText = "Noch keine Antworten.";
+      zeichneChart([]);
+      return;
+    }
+
+    const avg = daten.reduce((a, b) => a + b) / daten.length;
+    document.getElementById("avgWert").innerText = "Durchschnitt: " + avg.toFixed(2);
+    zeichneChart(daten);
   });
+}
+
+function zeichneChart(daten) {
+  const verteilung = Array(51).fill(0);
+  daten.forEach(wert => {
+    const index = Math.round(wert * 10);
+    verteilung[index]++;
+  });
+
+  const labels = Array.from({length: 51}, (_, i) => (i / 10).toFixed(1));
+  const ctx = document.getElementById("distributionChart").getContext("2d");
+
+  if (window.chartObj) window.chartObj.destroy();
+
+  window.chartObj = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Anzahl Stimmen',
+        data: verteilung,
+        backgroundColor: '#8b0000'
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true },
+        x: { title: { display: true, text: 'Bewertungsskala (0.0 - 5.0)' } }
+      }
+    }
+  });
+}
+
+document.getElementById("nextButton").addEventListener("click", () => {
+  aktuelleFrage++;
+  db.collection("umfragen").doc("aktuell").set({ aktuelleFrage });
+  ladeFrage();
 });
 
-// Antworten zurücksetzen
-resetButton.addEventListener("click", () => {
-  firestore.collection("antworten").get().then(snapshot => {
-    const batch = firestore.batch();
+document.getElementById("resetButton").addEventListener("click", () => {
+  if (!confirm("Alle Antworten wirklich löschen?")) return;
+
+  db.collection("antworten").get().then(snapshot => {
+    const batch = db.batch();
     snapshot.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
   }).then(() => {
-    alert("Alle Antworten gelöscht.");
-    ladeFrage(aktuelleFrage);
+    alert("Alle Antworten wurden gelöscht.");
+    ladeAntworten();
   });
 });
+
+ladeFrage();
