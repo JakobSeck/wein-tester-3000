@@ -1,4 +1,3 @@
-const db = firebase.firestore();
 let aktuelleFrage = 1;
 
 function ladeFrage() {
@@ -14,10 +13,8 @@ function ladeFrage() {
 function ladeAntworten() {
   const frage = "frage_" + aktuelleFrage;
   db.collection("antworten").where("frage", "==", frage).get().then(snapshot => {
-    let daten = [];
-    snapshot.forEach(doc => {
-      daten.push(doc.data().wert);
-    });
+    const daten = [];
+    snapshot.forEach(doc => daten.push(doc.data().wert));
 
     if (daten.length === 0) {
       document.getElementById("avgWert").innerText = "Noch keine Antworten.";
@@ -38,7 +35,7 @@ function zeichneChart(daten) {
     verteilung[index]++;
   });
 
-  const labels = Array.from({length: 51}, (_, i) => (i / 10).toFixed(1));
+  const labels = Array.from({ length: 51 }, (_, i) => (i / 10).toFixed(1));
   const ctx = document.getElementById("distributionChart").getContext("2d");
 
   if (window.chartObj) window.chartObj.destroy();
@@ -54,9 +51,11 @@ function zeichneChart(daten) {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: { beginAtZero: true },
-        x: { title: { display: true, text: 'Bewertungsskala (0.0 - 5.0)' } }
+        x: { title: { display: true, text: 'Skala 0.0 - 5.0' } }
       }
     }
   });
@@ -69,14 +68,14 @@ document.getElementById("nextButton").addEventListener("click", () => {
 });
 
 document.getElementById("resetButton").addEventListener("click", () => {
-  if (!confirm("Alle Antworten wirklich löschen?")) return;
+  if (!confirm("Willst du wirklich alle Antworten löschen?")) return;
 
   db.collection("antworten").get().then(snapshot => {
     const batch = db.batch();
     snapshot.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
   }).then(() => {
-    alert("Alle Antworten wurden gelöscht.");
+    alert("Antworten gelöscht.");
     ladeAntworten();
   });
 });
