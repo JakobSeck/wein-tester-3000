@@ -1,17 +1,146 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wein Tester 3000</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script defer src="main.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weinbeurteilung : Neues Deutsches Weingesetz</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 1.5rem;
+      background-color: #f3f3f3;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    #wein-info {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type=range] {
+      width: 90%;
+      margin: 1rem 0;
+    }
+
+    #slider-value {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      background-color: #3366cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #254f9d;
+    }
+
+    .info-text {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      #slider-value {
+        font-size: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Wein Tester 3000</h1>
-  <div id="question-container"></div>
+  <h1>Weinbeurteilung : Neues Deutsches Weingesetz</h1>
+  <div id="wein-info">Aktuelle Bewertung: Wein Nr. <span id="wein-number">1</span></div>
+
+  <div id="slider-value">2.5</div>
+  <input type="range" id="rating-slider" min="0" max="5" step="0.1" value="2.5" />
+
+  <button onclick="submitVote()">Bewertung abschicken</button>
+
+  <div class="info-text">Jede Person kann nur einmal pro Wein abstimmen.</div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyASD7sd9H8zC4eWQG4hXhu7OlKZlZbgxTo",
+      authDomain: "weintester-6e16b.firebaseapp.com",
+      projectId: "weintester-6e16b",
+      storageBucket: "weintester-6e16b.appspot.com",
+      messagingSenderId: "246274264172",
+      appId: "1:246274264172:web:c417c43f66d81d68fc1c49",
+      measurementId: "G-6DG76XNGG8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const slider = document.getElementById("rating-slider");
+    const valueDisplay = document.getElementById("slider-value");
+    const weinNumberDisplay = document.getElementById("wein-number");
+
+    let currentQuestionIndex = 0;
+
+    slider.addEventListener("input", () => {
+      valueDisplay.textContent = slider.value;
+    });
+
+    function getUserId() {
+      if (!localStorage.getItem("userId")) {
+        localStorage.setItem("userId", Math.random().toString(36).substring(2));
+      }
+      return localStorage.getItem("userId");
+    }
+
+    function submitVote() {
+      const userId = getUserId();
+      const voteRef = db.collection("responses")
+        .where("userId", "==", userId)
+        .where("questionIndex", "==", currentQuestionIndex);
+
+      voteRef.get().then(snapshot => {
+        if (!snapshot.empty) {
+          alert("Du hast für diesen Wein bereits abgestimmt.");
+        } else {
+          db.collection("responses").add({
+            userId,
+            questionIndex: currentQuestionIndex,
+            value: parseFloat(slider.value),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => {
+            alert("Danke für deine Bewertung!");
+          });
+        }
+      });
+    }
+
+    // Realtime Update vom aktuellen Wein
+    db.collection("meta").doc("currentQuestion").onSnapshot(doc => {
+      if (doc.exists) {
+        currentQuestionIndex = doc.data().index || 0;
+        weinNumberDisplay.textContent = currentQuestionIndex + 1;
+      }
+    });
+  </script>
 </body>
 </html>
